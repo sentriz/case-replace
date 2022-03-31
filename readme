@@ -1,0 +1,14 @@
+installation:
+    $ go install go.senan.xyz/case-replace@latest
+
+usage:
+    $ case-replace from/pattern to/pattern from/pattern to/pattern ...
+
+example:
+    $ case-replace big/green/eyes small/blue/nose yellow/brick/road red/wooden/door <<EOF
+    > you have big_green_eyes
+    > can i paint that yellowBrickRoad
+    > EOF
+
+    you have small_blue_nose
+    can i paint that redWoodenDoor
