@@ -25,8 +25,8 @@ func main() {
 		log.Fatalf("error making replacer: %v", err)
 	}
 
-	stdin, _ := io.ReadAll(os.Stdin)
-	replaced := replacer.Replace(string(stdin))
+	input, _ := io.ReadAll(os.Stdin)
+	replaced := replacer.Replace(string(input))
 	os.Stdout.Write([]byte(replaced))
 }
 
@@ -34,38 +34,26 @@ type pair struct {
 	from, to []string
 }
 
-func (p pair) String() string {
-	return fmt.Sprintf("%s -> %s", strings.Join(p.from, sep), strings.Join(p.to, sep))
-}
-
 func parsePairs(in []string) ([]pair, error) {
 	var pairs []pair
 	for i := 0; i < len(in)-1; i += 2 {
 		from, to := in[i], in[i+1]
-		pair, err := parsePair(from, to)
-		if err != nil {
-			return nil, fmt.Errorf("%q %q: %v", from, to, err)
+		fromParts := strings.Split(from, sep)
+		toParts := strings.Split(to, sep)
+		if len(fromParts) == 0 || len(toParts) == 0 {
+			return nil, fmt.Errorf("empty pair")
 		}
-		pairs = append(pairs, pair)
+		pairs = append(pairs, pair{fromParts, toParts})
 	}
 	return pairs, nil
 }
 
-func parsePair(from, to string) (pair, error) {
-	fromParts := strings.Split(from, sep)
-	toParts := strings.Split(to, sep)
-	if len(fromParts) == 0 || len(toParts) == 0 {
-		return pair{}, fmt.Errorf("empty pair")
-	}
-	return pair{fromParts, toParts}, nil
-}
-
 func makeReplacer(pairs []pair, casers []caser) (*strings.Replacer, error) {
 	var replacements []string
-	for _, p := range pairs {
-		for _, c := range casers {
-			replacements = append(replacements, c(p.from))
-			replacements = append(replacements, c(p.to))
+	for _, pair := range pairs {
+		for _, csr := range casers {
+			replacements = append(replacements, csr(pair.from))
+			replacements = append(replacements, csr(pair.to))
 		}
 	}
 	return strings.NewReplacer(replacements...), nil
