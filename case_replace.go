@@ -26,8 +26,7 @@ func main() {
 	}
 
 	input, _ := io.ReadAll(os.Stdin)
-	replaced := replacer.Replace(string(input))
-	os.Stdout.Write([]byte(replaced))
+	_, _ = replacer.WriteString(os.Stdout, string(input))
 }
 
 type pair struct {
